@@ -12,8 +12,6 @@ contract GeneralDisperserTest is Test {
     Token token0;
     Token token1;
 
-    uint badDisperserGasUsed;
-
     function setUp() public {
         testDisperser = new TestDisperser();
         disperser = new Disperser();
@@ -62,12 +60,7 @@ contract GeneralDisperserTest is Test {
        
         TestDisperser.DisperseInfo[] memory infos = _getDisperseInfo();
 
-        uint256 gasBefore = gasleft();
         testDisperser.disperse(infos);
-        uint256 gasAfter = gasleft();
-
-        badDisperserGasUsed = gasBefore - gasAfter;
-        console.log(badDisperserGasUsed);
 
         assertEq(alice.balance, 1);
         assertEq(bob.balance, 1);
@@ -115,9 +108,7 @@ contract GeneralDisperserTest is Test {
        
         TestDisperser.DisperseInfo[] memory infos = _getDisperseInfo();
 
-        uint256 gasBefore = gasleft();
         address(disperser).call(_parseDisperseInfo(infos));
-        uint256 gasAfter = gasleft();
 
         assertEq(alice.balance, 1);
         assertEq(bob.balance, 1);
@@ -125,9 +116,6 @@ contract GeneralDisperserTest is Test {
         assertEq(token0.balanceOf(bob), 1);
         assertEq(token1.balanceOf(alice), 1);
         assertEq(token1.balanceOf(bob), 1);
-
-        badDisperserGasUsed = gasBefore - gasAfter;
-        console.log(badDisperserGasUsed);
     }
 
     function _parseDisperseInfo(TestDisperser.DisperseInfo[] memory infos) internal returns (bytes memory) {

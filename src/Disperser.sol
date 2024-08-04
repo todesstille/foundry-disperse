@@ -21,13 +21,30 @@ contract Disperser {
             let tokensNumber := byte(0, calldataload(0))
             for {let i := 0} lt(i, tokensNumber) {i := add(i, 1)} {
                 
-                let token := calldataload(calldataCounter)
-                token := shr(96, token)
+                let token := shr(96, calldataload(calldataCounter))
                 calldataCounter := add(calldataCounter, 20)
 
                 let destinationsNumber := byte(0, calldataload(calldataCounter))
                 calldataCounter := add(calldataCounter, 1)
-                
+
+                if eq(token, 0) {                
+                    for {let j := 0} lt(j, destinationsNumber) {j := add(j, 1)} {
+                        let destination := calldataload(calldataCounter)
+                        destination := shr(96, destination)
+                        calldataCounter := add(calldataCounter, 20)
+
+                        let amount := calldataload(calldataCounter)
+                        calldataCounter := add(calldataCounter, 32)
+
+                        let success := call(gas(), destination, amount, 0, 0, 0, 0)
+                        if iszero(success) {
+                            revert(0, 0)
+                        }
+                    }
+
+                    continue
+                }
+                            
                 for {let j := 0} lt(j, destinationsNumber) {j := add(j, 1)} {
                     let destination := calldataload(calldataCounter)
                     destination := shr(96, destination)
@@ -36,22 +53,13 @@ contract Disperser {
                     let amount := calldataload(calldataCounter)
                     calldataCounter := add(calldataCounter, 32)
 
-                    if eq(token, 0) {
-                        let success := call(gas(), destination, amount, 0, 0, 0, 0)
-                        if iszero(success) {
-                            revert(0, 0)
-                        }
-                    }
+                    mstore(4, destination)
+                    mstore(36, amount)
 
-                    if iszero(eq(token, 0)) {
-                        mstore(4, destination)
-                        mstore(36, amount)
+                    let success := call(gas(), token, 0, 0, 68, 0, 0)
 
-                        let success := call(gas(), token, 0, 0, 68, 0, 0)
-
-                        if iszero(success) {
-                            revert(0, 0)
-                        }
+                    if iszero(success) {
+                        revert(0, 0)
                     }
                 }
             }

@@ -2,9 +2,9 @@
 pragma solidity ^0.8.13;
 
 import {Script, console} from "forge-std/Script.sol";
-// import {Counter} from "../src/Counter.sol";
+import {Disperser} from "../src/Disperser.sol";
 
-contract CounterScript is Script {
+contract DisperserScript is Script {
     // Counter public counter;
 
     // function setUp() public {}
